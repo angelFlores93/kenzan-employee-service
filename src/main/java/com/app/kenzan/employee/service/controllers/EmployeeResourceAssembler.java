@@ -4,8 +4,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
-import com.app.kenzan.employee.service.entity.Employee;
 
+import com.app.kenzan.employee.commons.models.entity.Employee;
+/**
+ * 
+ * @author aaflo
+ *
+ */
 @Component
 public class EmployeeResourceAssembler implements RepresentationModelAssembler<Employee, EntityModel<Employee>> {
 	@Override

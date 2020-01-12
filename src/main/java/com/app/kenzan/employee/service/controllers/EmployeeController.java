@@ -13,30 +13,33 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.kenzan.employee.service.entity.Employee;
+import com.app.kenzan.employee.commons.models.entity.Employee;
+import com.app.kenzan.employee.commons.utils.Status;
 import com.app.kenzan.employee.service.exceptions.EmployeeNotFoundException;
 import com.app.kenzan.employee.service.services.EmployeeRepository;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 
+/**
+ * 
+ * @author aaflo
+ *
+ */
 @RestController
 public class EmployeeController {
-	private final EmployeeRepository repository;
-	private final EmployeeResourceAssembler assembler;
+	@Autowired
+	private EmployeeRepository repository;
+	@Autowired
+	private EmployeeResourceAssembler assembler;
 
-	public EmployeeController(EmployeeRepository repository, EmployeeResourceAssembler assembler) {
-		this.repository = repository;
-		this.assembler = assembler;
-	}
-
-	// Aggregate root
-
+	
 	@GetMapping("/employees")
 	public CollectionModel<EntityModel<Employee>> getAll() {
-		List<EntityModel<Employee>> employees = repository.findByStatus(1).stream().map(assembler::toModel)
+		List<EntityModel<Employee>> employees = repository.findByStatus(Status.ACTIVE).stream().map(assembler::toModel)
 				.collect(Collectors.toList());
 
 		return new CollectionModel<EntityModel<Employee>>(employees,
@@ -53,7 +56,7 @@ public class EmployeeController {
 
 	@GetMapping("/employees/{id}")
 	public EntityModel<Employee> findById(@PathVariable Long id) {
-		Employee employee = repository.findByIdAndStatus(id, 1).orElseThrow(() -> new EmployeeNotFoundException(id));
+		Employee employee = repository.findByIdAndStatus(id, Status.ACTIVE).orElseThrow(() -> new EmployeeNotFoundException(id));
 		return assembler.toModel(employee);
 	}
 
@@ -76,10 +79,10 @@ public class EmployeeController {
 		return ResponseEntity.created(new URI(resource.getLink("employees").get().getHref())).body(resource);
 	}
 
-	@DeleteMapping("/employees/delete/{id}")
+	@DeleteMapping("/employees/{id}")
 	public ResponseEntity<Object> deleteEmployee(@PathVariable Long id) throws Exception {
 		Employee deletedEmployee = repository.findById(id).map(employee -> {
-			employee.setStatus(0);
+			employee.setStatus(Status.INATIVE);
 			return repository.save(employee);
 		}).orElseThrow(() -> new EmployeeNotFoundException(id));
 		EntityModel<Employee> resource = assembler.toModel(deletedEmployee);

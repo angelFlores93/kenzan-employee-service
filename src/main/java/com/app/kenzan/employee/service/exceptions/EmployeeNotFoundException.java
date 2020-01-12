@@ -1,5 +1,10 @@
 package com.app.kenzan.employee.service.exceptions;
 
+/**
+ * 
+ * @author aaflo
+ *
+ */
 public class EmployeeNotFoundException extends RuntimeException {
 
 	/**
